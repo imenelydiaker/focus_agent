@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "focus_agent"
+version = "0.0.1"
+description = "Retrieval-based observation pruning for web agents."
+authors = [
+    {name = "Imene Kerboua", email = "imenelkerboua@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.11,<3.13"  # upper bound inherited from agentlab==0.4.2
+license = {text = "BSD-3-Clause"}
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+# agentlab brings the browsergym/bgym stack along with matplotlib, openai,
+# pandas, requests and torch. Listed below are the packages this project
+# imports directly that agentlab does not itself guarantee.
+dependencies = [
+    "agentlab==0.4.2",
+    "beautifulsoup4>=4.12",
+    "bm25s>=0.2",
+    "datasets>=2.19",  # <2.19 breaks against modern pyarrow (pa.PyExtensionType)
+    "networkx>=3.0",
+    "tiktoken>=0.7",
+]
+
+[project.optional-dependencies]
+# Only needed when a retriever runs with use_recursive_text_splitter=True.
+splitters = ["langchain-text-splitters>=0.2"]
+dev = ["pytest>=8.0"]
+
+[project.urls]
+"Homepage" = "https://github.com/imenelydiaker/focus_agent"
+"Repository" = "https://github.com/imenelydiaker/focus_agent"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
