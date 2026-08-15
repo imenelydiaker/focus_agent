@@ -1,0 +1,56 @@
+[
+  {
+    "task_id": 27,
+    "original_intent": "Tell me the count of comments that have received more downvotes than upvotes for the user who made the latest post on the Showerthoughts forum.",
+    "diversion_task_id": 28,
+    "diversion_intent": "Tell me the count of comments that have received more downvotes than upvotes for the user who made the latest post on the Worcester forum."
+  },
+  {
+    "task_id": 28,
+    "original_intent": "Tell me the count of comments that have received more downvotes than upvotes for the user who made the latest post on the Worcester forum.",
+    "diversion_task_id": 27,
+    "diversion_intent": "Tell me the count of comments that have received more downvotes than upvotes for the user who made the latest post on the Showerthoughts forum."
+  },
+  {
+    "task_id": 29,
+    "original_intent": "Tell me the count of comments that have received more downvotes than upvotes for the user who made the latest post on the DIY forum.",
+    "diversion_task_id": 30,
+    "diversion_intent": "Tell me the count of comments that have received more downvotes than upvotes for the user who made the latest post on the space forum."
+  },
+  {
+    "task_id": 30,
+    "original_intent": "Tell me the count of comments that have received more downvotes than upvotes for the user who made the latest post on the space forum.",
+    "diversion_task_id": 31,
+    "diversion_intent": "Tell me the count of comments that have received more downvotes than upvotes for the user who made the latest post on the photoshopbattles forum."
+  },
+  {
+    "task_id": 31,
+    "original_intent": "Tell me the count of comments that have received more downvotes than upvotes for the user who made the latest post on the photoshopbattles forum.",
+    "diversion_task_id": 29,
+    "diversion_intent": "Tell me the count of comments that have received more downvotes than upvotes for the user who made the latest post on the DIY forum."
+  },
+  {
+    "task_id": 66,
+    "original_intent": "Among the top 10 post in \"books\" forum, show me the post URLs that recommand a single book",
+    "diversion_task_id": 67,
+    "diversion_intent": "Among the top 10 post in \"books\" forum, show me the book names from posts that recommand a single book"
+  },
+  {
+    "task_id": 67,
+    "original_intent": "Among the top 10 post in \"books\" forum, show me the book names from posts that recommand a single book",
+    "diversion_task_id": 68,
+    "diversion_intent": "Among the top 10 post in \"books\" forum, show me the author name and the book name from posts that recommand a single book"
+  },
+  {
+    "task_id": 68,
+    "original_intent": "Among the top 10 post in \"books\" forum, show me the author name and the book name from posts that recommand a single book",
+    "diversion_task_id": 67,
+    "diversion_intent": "Among the top 10 post in \"books\" forum, show me the book names from posts that recommand a single book"
+  },
+  {
+    "task_id": 69,
+    "original_intent": "Among the top 10 post in \"books\" forum, is there any post talks about supporting local book stores? If so, tell me the organizations involved",
+    "diversion_task_id": 66,
+    "diversion_intent": "Among the top 10 post in \"books\" forum, show me the post URLs that recommand a single book"
+  }
+]
