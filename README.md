@@ -224,3 +224,20 @@ pip install -e '.[dev]'
 pytest tests/                                  # 518 tests
 pytest tests/ --cov=focus_agent                # with coverage (73%)
 ```
+
+## Citation
+
+If you use this work, please cite:
+
+```bibtex
+@article{kerboua2026focusagent,
+  title={{FocusAgent}: Simple Yet Effective Ways of Trimming the Large Context of Web Agents},
+  author={Kerboua, Imene and Omidi Shayegan, Sahar and Thakkar, Megh and L{\`u}, Xing Han
+          and Boisvert, L{\'e}o and Caccia, Massimo and Espinas, J{\'e}r{\'e}my
+          and Aussem, Alexandre and Eglin, V{\'e}ronique and Lacoste, Alexandre},
+  journal={Transactions on Machine Learning Research},
+  issn={2835-8856},
+  year={2026},
+  url={https://openreview.net/forum?id=mINaJKSy7A}
+}
+```
