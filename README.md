@@ -1,8 +1,14 @@
+<div align="center">
+
 # FocusAgent
+
+**[🌐 Project page](https://imenelydiaker.github.io/focus_agent/)**
 
 [![Tests](https://github.com/imenelydiaker/focus_agent/actions/workflows/tests.yml/badge.svg)](https://github.com/imenelydiaker/focus_agent/actions/workflows/tests.yml)
 [![Build](https://github.com/imenelydiaker/focus_agent/actions/workflows/build.yml/badge.svg)](https://github.com/imenelydiaker/focus_agent/actions/workflows/build.yml)
 [![Python 3.11 | 3.12](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)](https://github.com/imenelydiaker/focus_agent)
+
+</div>
 
 ![FocusAgent's two-stage architecture](assests/main_figure.png)
 
