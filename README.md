@@ -218,23 +218,3 @@ pip install -e '.[dev]'
 pytest tests/                                  # 518 tests
 pytest tests/ --cov=focus_agent                # with coverage (73%)
 ```
-
-| Module | What is covered |
-| --- | --- |
-| `test_focus_agent_loop.py` | The observation step end to end against a stubbed retriever: pruning, retries, structure mode, and defender sanitization. |
-| `test_retriever_parsing.py` | Parsing the retriever's reply — all four accepted answer shapes and malformed-answer rejection. |
-| `test_tree_utils.py` | The `AxTree` structure: parsing, indexing, replacement, chunking, and trimming. |
-| `test_focus_prompt.py` | Prompt assembly for every retriever variant and flag combination. |
-| `test_agent_configs.py` | Every shipped and ablation config: model wiring, naming, and ablation axes. |
-| `test_focus_utils.py` | Pruning: line selection, placeholder counts, and structure-preserving mode. |
-| `test_bm25_retriever.py` | BM25 baseline, bid extraction, neighbourhood lookup, and chunking. |
-| `test_agent_utils.py` | Line numbering, no-bid filtering, and token counting. |
-| `test_utils_and_cleaner.py` | Summary reformatting, chat-message helpers, and the heuristic cleaner. |
-| `test_text_embedding_client_batching.py` | Request batching in the embedding client. |
-
-**No credentials are required.** No LLM is ever called — retrievers and chat
-models are stubbed — and the workflows reference no secrets. The only network
-access is `tiktoken` fetching its encoding file on first run, which it then
-caches. The uncovered remainder is code that needs a live browser or dataset
-(`benchmarks/`) or a live model client. CI runs the suite on Python 3.11 and
-3.12 via [`tests.yml`](.github/workflows/tests.yml).
