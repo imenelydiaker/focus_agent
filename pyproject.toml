@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=77.0"]  # >=77 for PEP 639 SPDX license metadata
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -11,7 +11,8 @@ authors = [
 ]
 readme = "README.md"
 requires-python = ">=3.11,<3.13"  # upper bound inherited from agentlab==0.4.2
-license = {text = "BSD-3-Clause"}
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Programming Language :: Python :: 3",
