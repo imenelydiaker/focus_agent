@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="FocusAgent: Simple Yet Effective Ways of Trimming the Large Context of Web Agents">
+  <meta name="description" content="FocusAgent uses a lightweight LLM retriever to extract the most relevant lines of an AxTree observation, cutting observation size by over 50% and dropping prompt-injection attack success from over 80% to under 1%.">
+  <meta name="keywords" content="web agents, LLM agents, accessibility tree, retrieval, context pruning, prompt injection, agent security, WorkArena, WebArena, BrowserGym, DoomArena">
+  <meta name="author" content="Imene Kerboua, Sahar Omidi Shayegan, Megh Thakkar, Xing Han Lù, Léo Boisvert, Massimo Caccia, Jérémy Espinas, Alexandre Aussem, Véronique Eglin, Alexandre Lacoste">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="English">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="FocusAgent">
+  <meta property="og:title" content="FocusAgent: Simple Yet Effective Ways of Trimming the Large Context of Web Agents">
+  <meta property="og:description" content="A lightweight LLM retriever prunes AxTree observations before the agent sees them — over 50% smaller observations, and attack success rates that fall from over 80% to under 1%.">
+  <meta property="og:url" content="https://imenelydiaker.github.io/focus_agent/">
+  <meta property="og:image" content="https://imenelydiaker.github.io/focus_agent/static/images/main_figure.png">
+  <meta property="og:image:alt" content="FocusAgent's two-stage retrieve-then-act pipeline">
+  <meta property="article:author" content="Imene Kerboua">
+  <meta property="article:section" content="Research">
+  <meta property="article:tag" content="web agents">
+  <meta property="article:tag" content="prompt injection">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="FocusAgent: Simple Yet Effective Ways of Trimming the Large Context of Web Agents">
+  <meta name="twitter:description" content="A lightweight LLM retriever prunes AxTree observations before the agent sees them — over 50% smaller observations, and attack success rates that fall from over 80% to under 1%.">
+  <meta name="twitter:image" content="https://imenelydiaker.github.io/focus_agent/static/images/main_figure.png">
+  <meta name="twitter:image:alt" content="FocusAgent's two-stage retrieve-then-act pipeline">
+
+  <!-- Academic/Research Specific -->
+  <meta name="citation_title" content="FocusAgent: Simple Yet Effective Ways of Trimming the Large Context of Web Agents">
+  <meta name="citation_author" content="Kerboua, Imene">
+  <meta name="citation_author" content="Omidi Shayegan, Sahar">
+  <meta name="citation_author" content="Thakkar, Megh">
+  <meta name="citation_author" content="Lù, Xing Han">
+  <meta name="citation_author" content="Boisvert, Léo">
+  <meta name="citation_author" content="Caccia, Massimo">
+  <meta name="citation_author" content="Espinas, Jérémy">
+  <meta name="citation_author" content="Aussem, Alexandre">
+  <meta name="citation_author" content="Eglin, Véronique">
+  <meta name="citation_author" content="Lacoste, Alexandre">
+  <meta name="citation_publication_date" content="2026">
+  <meta name="citation_journal_title" content="Transactions on Machine Learning Research">
+  <meta name="citation_pdf_url" content="https://openreview.net/pdf?id=mINaJKSy7A">
+
+  <!-- Additional SEO -->
+  <meta name="theme-color" content="#2563eb">
+  <meta name="msapplication-TileColor" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://ajax.googleapis.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+  <title>FocusAgent: Simple Yet Effective Ways of Trimming the Large Context of Web Agents</title>
+
+  <!-- Favicon and App Icons -->
+  <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
+  <link rel="apple-touch-icon" href="static/images/favicon.ico">
+
+  <!-- Critical CSS - Load synchronously -->
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+
+  <!-- Non-critical CSS - Load asynchronously -->
+  <link rel="preload" href="static/css/bulma-carousel.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/bulma-slider.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="static/css/fontawesome.all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="preload" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+  <!-- Fallback for browsers that don't support preload -->
+  <noscript>
+    <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+    <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  </noscript>
+
+  <!-- Fonts - Optimized loading -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Defer non-critical JavaScript -->
+  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script defer src="static/js/bulma-carousel.min.js"></script>
+  <script defer src="static/js/bulma-slider.min.js"></script>
+  <script defer src="static/js/index.js"></script>
+
+  <!-- Structured Data for Academic Papers -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "headline": "FocusAgent: Simple Yet Effective Ways of Trimming the Large Context of Web Agents",
+    "description": "FocusAgent uses a lightweight LLM retriever to extract the most relevant lines of an AxTree observation, reducing observation size by over 50% while cutting prompt-injection attack success rates from over 80% to under 1%.",
+    "author": [
+      { "@type": "Person", "name": "Imene Kerboua", "affiliation": [{ "@type": "Organization", "name": "INSA Lyon" }, { "@type": "Organization", "name": "Esker" }] },
+      { "@type": "Person", "name": "Sahar Omidi Shayegan" },
+      { "@type": "Person", "name": "Megh Thakkar" },
+      { "@type": "Person", "name": "Xing Han Lù" },
+      { "@type": "Person", "name": "Léo Boisvert" },
+      { "@type": "Person", "name": "Massimo Caccia" },
+      { "@type": "Person", "name": "Jérémy Espinas" },
+      { "@type": "Person", "name": "Alexandre Aussem" },
+      { "@type": "Person", "name": "Véronique Eglin" },
+      { "@type": "Person", "name": "Alexandre Lacoste" }
+    ],
+    "datePublished": "2026",
+    "publisher": { "@type": "Organization", "name": "Transactions on Machine Learning Research" },
+    "url": "https://imenelydiaker.github.io/focus_agent/",
+    "image": "https://imenelydiaker.github.io/focus_agent/static/images/main_figure.png",
+    "keywords": ["web agents", "LLM agents", "retrieval", "context pruning", "prompt injection", "agent security"],
+    "isAccessibleForFree": true,
+    "mainEntity": {
+      "@type": "SoftwareSourceCode",
+      "name": "focus_agent",
+      "codeRepository": "https://github.com/imenelydiaker/focus_agent",
+      "programmingLanguage": "Python",
+      "license": "https://www.apache.org/licenses/LICENSE-2.0"
+    },
+    "about": [
+      { "@type": "Thing", "name": "Autonomous web agents" },
+      { "@type": "Thing", "name": "Prompt injection defense" }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <!-- Scroll to Top Button -->
+  <button class="scroll-to-top" onclick="scrollToTop()" title="Scroll to top" aria-label="Scroll to top">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+
+  <main id="main-content">
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">FocusAgent</h1>
+            <h2 class="subtitle is-4" style="margin-top:-1rem;margin-bottom:2rem;">
+              Simple Yet Effective Ways of Trimming the Large Context of Web Agents
+            </h2>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a href="https://github.com/imenelydiaker" target="_blank">Imene Kerboua</a><sup>1,2</sup>,</span>
+              <span class="author-block">Sahar Omidi Shayegan<sup>3,4,5</sup>,</span>
+              <span class="author-block">Megh Thakkar<sup>3</sup>,</span>
+              <span class="author-block">Xing Han Lù<sup>4,5</sup>,</span>
+              <span class="author-block">Léo Boisvert<sup>3,4,6</sup>,</span>
+              <span class="author-block">Massimo Caccia<sup>3</sup>,</span>
+              <span class="author-block">Jérémy Espinas<sup>2</sup>,</span>
+              <span class="author-block">Alexandre Aussem<sup>7</sup>,</span>
+              <span class="author-block">Véronique Eglin<sup>1</sup>,</span>
+              <span class="author-block">Alexandre Lacoste<sup>3</sup></span>
+            </div>
+
+            <div class="is-size-6 publication-authors">
+              <span class="author-block">
+                <sup>1</sup>INSA Lyon &nbsp;&middot;&nbsp;
+                <sup>2</sup>Esker &nbsp;&middot;&nbsp;
+                <sup>3</sup>ServiceNow Research &nbsp;&middot;&nbsp;
+                <sup>4</sup>Mila – Quebec AI Institute<br>
+                <sup>5</sup>McGill University &nbsp;&middot;&nbsp;
+                <sup>6</sup>Polytechnique Montréal &nbsp;&middot;&nbsp;
+                <sup>7</sup>Université Lyon 1
+              </span>
+            </div>
+
+            <div class="is-size-5 publication-authors" style="margin-top:1rem;">
+              <span class="author-block">Transactions on Machine Learning Research (TMLR), 2026</span>
+              <span class="eql-cntrb"><small><br>Correspondence:
+                <a href="mailto:imene.kerboua@insa-lyon.fr">imene.kerboua@insa-lyon.fr</a></small></span>
+            </div>
+
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <span class="link-block">
+                  <a href="https://openreview.net/pdf?id=mINaJKSy7A" target="_blank"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fas fa-file-pdf"></i></span>
+                    <span>Paper</span>
+                  </a>
+                </span>
+
+                <span class="link-block">
+                  <a href="https://openreview.net/forum?id=mINaJKSy7A" target="_blank"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fas fa-book-open"></i></span>
+                    <span>OpenReview</span>
+                  </a>
+                </span>
+
+                <span class="link-block">
+                  <a href="https://github.com/imenelydiaker/focus_agent" target="_blank"
+                     class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon"><i class="fab fa-github"></i></span>
+                    <span>Code</span>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Teaser figure -->
+  <section class="hero teaser">
+    <div class="container is-max-desktop">
+      <div class="hero-body">
+        <img src="static/images/main_figure.png"
+             alt="Overview of the FocusAgent pipeline with and without prompt injection attacks: stage 1 retrieves relevant lines from the observation and removes injections, stage 2 predicts an action from the pruned observation."/>
+        <h2 class="subtitle has-text-centered">
+          Overview of the FocusAgent pipeline with and without prompt-injection attacks. Stage 1
+          retrieves the relevant lines of the observation, removing prompt injections if present;
+          stage 2 uses the pruned observation to predict actions toward the task goal.
+        </h2>
+      </div>
+    </div>
+  </section>
+  <!-- End teaser figure -->
+
+  <!-- Paper abstract -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Abstract</h2>
+          <div class="content has-text-justified">
+            <p>
+              Web agents powered by large language models (LLMs) must process lengthy web page
+              observations to complete user goals; these pages often exceed tens of thousands of
+              tokens. This saturates context limits and increases computational cost. Moreover,
+              processing full pages exposes agents to security risks such as prompt injection.
+              Existing pruning strategies either discard relevant content or retain irrelevant
+              context, leading to suboptimal action prediction. We introduce <strong>FocusAgent</strong>,
+              a simple yet effective approach that leverages a lightweight LLM retriever to extract
+              the most relevant lines from accessibility tree (AxTree) observations, guided by task
+              goals. By pruning noisy and irrelevant content, FocusAgent enables efficient reasoning
+              while reducing vulnerability to injection attacks. Experiments on WorkArena and
+              WebArena benchmarks show that FocusAgent achieves the performance of strong baselines
+              with modest degradation, while reducing observation size by over 50%. Furthermore, a
+              variant of FocusAgent significantly reduces the success rate of prompt-injection
+              attacks, including banner and pop-up attacks, while maintaining task success
+              performance in attack-free settings. Our results highlight that targeted LLM-based
+              retrieval is a practical and robust strategy for building web agents that are
+              efficient, effective, and secure.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End paper abstract -->
+
+  <!-- How it works -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3 has-text-centered">How it works</h2>
+          <div class="content has-text-justified">
+            <p>
+              Retrieval is applied as a pre-processing step to every observation, at every step of an
+              episode. A lightweight LLM acts as a selective filter: it is prompted with
+              <strong>(1)</strong> the current task goal, <strong>(2)</strong> the current
+              observation with each line uniquely numbered, <strong>(3)</strong> optionally the
+              interaction history, and <strong>(4)</strong> instructions on how to return line spans.
+              The LLM identifies the line ranges likely to contribute to future action decisions, and
+              post-processing removes everything else. The agent then acts on a much lighter context.
+            </p>
+            <p>
+              FocusAgent uses a <em>soft</em> retrieval strategy — when the retriever hesitates it is
+              encouraged to keep more, not less — and by default uses the goal and current
+              observation without the history. The design choices are justified by ablations in the
+              paper. The method also extends to pages exceeding the retriever's context window by
+              processing the AxTree in successive prompts and merging the returned ranges, though no
+              such case arose in our experiments at 128k tokens.
+            </p>
+          </div>
+
+          <figure class="image">
+            <img src="static/images/llm_retrieval.png"
+                 alt="Worked example: line numbers are assigned to the AxTree, the retriever emits chain-of-thought and relevant line ranges, and a pruned AxTree is produced with a placeholder counting the removed lines."/>
+          </figure>
+          <p class="subtitle has-text-centered is-size-6" style="margin-top:1rem;">
+            FocusAgent's retrieval component on the task “Upvote the newest post in the deeplearning
+            subreddit” at step 2 of WebArena (task 407). (1) Line numbers are assigned to each AxTree
+            element and a prompt is built from the goal and, where applicable, the interaction
+            history; (2) the LLM emits a chain-of-thought together with the line ranges relevant to
+            task completion; (3) a revised AxTree is produced by removing the irrelevant lines and
+            inserting a placeholder stating how many lines were pruned — here 560 tokens down to 219,
+            a 61% reduction.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End how it works -->
+
+  <!-- Experimental setup -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3 has-text-centered">Experimental setup</h2>
+          <div class="content has-text-justified">
+            <p>
+              All experiments run in <strong>BrowserGym</strong> and <strong>AgentLab</strong> on two
+              benchmarks: <strong>WorkArena L1</strong> (10 seeds per task, 330 tasks, 15 steps max)
+              and <strong>WebArena</strong> (the BrowserGym test split, 381 tasks, 30 steps max).
+              Agents are capped at 40k tokens of context — except the 5k bottom-truncation variant —
+              and the retriever at 128k.
+            </p>
+            <p>
+              We compare against <strong>GenericAgent-BT</strong>, the BrowserGym generic agent with
+              bottom truncation; <strong>EmbeddingAgent</strong>, which retrieves the top-10 chunks by
+              cosine similarity to the goal and action history (<em>text-embedding-3-large</em> and
+              <em>Qwen3-Embedding-8B</em>); and <strong>BM25Agent</strong>, the same setup with
+              lexical BM25 scoring. Chunk sizes of 200 and 400 tokens are reported for both.
+              FocusAgent varies both the retriever (GPT-4.1-mini, GPT-5-mini, Qwen3-8B, Qwen3.5-9B,
+              Qwen3-235B-A22B) and the backbone (GPT-4.1, Claude-3.7-Sonnet, Qwen3-235B-A22B).
+            </p>
+            <p>
+              We report <strong>success rate</strong> (SR ± standard error), <strong>pruning</strong>
+              — <em>1 − |o<sub>r</sub>| / |o<sub>i</sub>|</em>, the fraction of observation tokens
+              removed — and the <strong>total cost</strong> in USD of every LLM call over the full
+              benchmark, since cost is optimized jointly with accuracy rather than ignored.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End experimental setup -->
+
+  <!-- Results -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3 has-text-centered">Results</h2>
+
+          <div class="content has-text-justified">
+            <p>
+              <strong>LLM retrieval beats classic retrieval in interactive environments.</strong>
+              Embedding and BM25 retrieval are highly sensitive to chunk size — they score between
+              42.4% and 53.3% on WorkArena L1, while FocusAgent reaches 51.5%–53.2%. The gap tracks
+              the pruning rate: at a 400-token chunk size, classic retrievers prune only ~30% of the
+              tree, against 61% for FocusAgent. Restricted to matching the task goal, they discard
+              chunks that are necessary for understanding the page yet never mentioned in the goal.
+              Tuning the chunk size mitigates this failure mode without eliminating it; FocusAgent
+              avoids it altogether and requires no tuning. What matters is not how much of the
+              observation is pruned, but whether what remains preserves the context needed to act.
+            </p>
+          </div>
+
+          <div class="columns">
+            <div class="column is-half">
+              <figure class="image">
+                <img src="static/images/sr_vs_pruning.png"
+                     alt="Scatter plot of success rate against average AxTree pruning: FocusAgent variants sit in the cost-efficient region at 55-63% pruning and above 50% success rate, while BM25 and embedding agents fall below."/>
+              </figure>
+              <p class="is-size-7 has-text-centered" style="margin-top:0.5rem;">
+                Success rate vs. average AxTree token pruning; labels indicate the retrieval model.
+                The green region marks cost-efficient methods — those pruning at least 20% of tokens
+                while holding near-baseline SR.
+              </p>
+            </div>
+            <div class="column is-half">
+              <figure class="image">
+                <img src="static/images/sr_vs_cost.png"
+                     alt="Scatter plot of success rate against total experiment cost in USD: FocusAgent variants reach baseline success rate at lower cost than bottom truncation."/>
+              </figure>
+              <p class="is-size-7 has-text-centered" style="margin-top:0.5rem;">
+                Success rate vs. total cost (USD). A method is cost-efficient if it reaches baseline
+                SR at strictly lower cost (green region).
+              </p>
+            </div>
+          </div>
+
+          <h3 class="title is-5" style="margin-top:2.5rem;">Retrieval methods on WorkArena L1</h3>
+          <div class="table-container">
+            <table class="table is-fullwidth is-narrow is-striped is-hoverable">
+              <thead>
+                <tr>
+                  <th>Agent</th>
+                  <th>SR (%)</th>
+                  <th>Prun. (%)</th>
+                  <th>Backbone ($)</th>
+                  <th>Retriever ($)</th>
+                  <th>Total ($)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>GenericAgent-BT</td><td><strong>53.6</strong> <small>±2.8</small></td><td>0</td><td>55.6</td><td>–</td><td>55.6</td></tr>
+                <tr><td>BM25Agent-200</td><td>45.8 <small>±2.7</small></td><td>56</td><td>23.3</td><td>N/A</td><td>23.3 <small>(−58%)</small></td></tr>
+                <tr><td>BM25Agent-400</td><td>53.3 <small>±2.8</small></td><td>32</td><td>34.3</td><td>N/A</td><td>34.3 <small>(−38%)</small></td></tr>
+                <tr><td>EmbeddingAgent (<em>embed-3-large</em>)-200</td><td>42.4 <small>±2.7</small></td><td>54</td><td>24.7</td><td>0.9</td><td>25.6 <small>(−54%)</small></td></tr>
+                <tr><td>EmbeddingAgent (<em>embed-3-large</em>)-400</td><td>46.4 <small>±2.7</small></td><td>31</td><td>34.8</td><td>1.4</td><td>36.2 <small>(−35%)</small></td></tr>
+                <tr><td>EmbeddingAgent (<em>qwen3-embed-8b</em>)-200</td><td>44.8 <small>±2.7</small></td><td>54</td><td>24.1</td><td>N/A</td><td>24.1 <small>(−57%)</small></td></tr>
+                <tr><td>EmbeddingAgent (<em>qwen3-embed-8b</em>)-400</td><td>53.0 <small>±2.8</small></td><td>30</td><td>32.0</td><td>N/A</td><td>32.0 <small>(−42%)</small></td></tr>
+                <tr><td>FocusAgent (<em>qwen3-8b</em>)</td><td>43.9 <small>±2.7</small></td><td>60</td><td>32.0</td><td>1.4</td><td>33.4 <small>(−40%)</small></td></tr>
+                <tr><td>FocusAgent (<em>qwen3.5-9b</em>)</td><td>48.8 <small>±2.8</small></td><td><strong>63</strong></td><td>27.1</td><td>≈0*</td><td>27.1 <small>(−51%)</small></td></tr>
+                <tr><td>FocusAgent (<em>qwen3-235b-a22b</em>)</td><td>51.5 <small>±2.8</small></td><td>58</td><td>28.4</td><td>≈0*</td><td>28.4 <small>(−49%)</small></td></tr>
+                <tr><td>FocusAgent (<em>4.1-mini</em>)</td><td>51.5 <small>±2.7</small></td><td>56</td><td>33.8</td><td>11.3</td><td>45.1 <small>(−19%)</small></td></tr>
+                <tr><td>FocusAgent (<em>5-mini</em>)</td><td><strong>53.2</strong> <small>±2.7</small></td><td>61</td><td>26.7</td><td>11.4</td><td>38.1 <small>(−31%)</small></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="is-size-7">
+            SR, pruning and cost breakdown on WorkArena L1 with GPT-4.1 as the backbone for every
+            agent. (*) Under OpenRouter pricing the retriever cost is near zero.
+          </p>
+
+          <div class="content has-text-justified" style="margin-top:2.5rem;">
+            <p>
+              <strong>Efficiency gains across backbones and benchmarks.</strong> On WorkArena L1
+              FocusAgent prunes 51% (GPT-4.1) and 50% (Claude-3.7-Sonnet) of the observation, for
+              cost reductions of about 19% and 16%; on WebArena it prunes 59% and 51%, saving 26% and
+              27%. Success rate drops by only 1.5 points on WorkArena L1 with GPT-4.1, and with
+              Qwen3-235B-A22B the method <em>improves</em> over the baseline — from 27.0% to 38.2%
+              with a GPT-5-mini retriever. Failure cases with Claude come mostly from the retriever
+              not returning enough context for the model to read the page state.
+            </p>
+          </div>
+
+          <h3 class="title is-5">Main results across backbones</h3>
+          <div class="table-container">
+            <table class="table is-fullwidth is-narrow is-striped is-hoverable">
+              <thead>
+                <tr>
+                  <th rowspan="2">Backbone</th>
+                  <th rowspan="2">Agent</th>
+                  <th colspan="3" style="text-align:center;">WorkArena L1 (330 tasks)</th>
+                  <th colspan="3" style="text-align:center;">WebArena (381 tasks)</th>
+                </tr>
+                <tr>
+                  <th>SR (%)</th><th>Prun. (%)</th><th>Cost ($)</th>
+                  <th>SR (%)</th><th>Prun. (%)</th><th>Cost ($)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td rowspan="4">GPT-4.1</td>
+                  <td>GenericAgent-BT</td>
+                  <td><strong>53.6</strong> <small>±2.7</small></td><td>0</td><td>55.6</td>
+                  <td>36.5 <small>±2.5</small></td><td>2</td><td>59.0</td>
+                </tr>
+                <tr>
+                  <td>GenericAgent-BT (5k)</td>
+                  <td>44.5 <small>±2.7</small></td><td>44</td><td>28.3 <small>(−49%)</small></td>
+                  <td>29.1 <small>±2.3</small></td><td>38</td><td>43.5 <small>(−27%)</small></td>
+                </tr>
+                <tr>
+                  <td>FocusAgent (<em>4.1-mini</em>)</td>
+                  <td>51.5 <small>±2.7</small></td><td>51</td><td>45.1 <small>(−19%)</small></td>
+                  <td>32.3 <small>±2.4</small></td><td>59</td><td>44.0 <small>(−26%)</small></td>
+                </tr>
+                <tr>
+                  <td>FocusAgent (<em>5-mini</em>)</td>
+                  <td>53.2 <small>±2.7</small></td><td>61</td><td>38.1 <small>(−30%)</small></td>
+                  <td><strong>39.6</strong> <small>±2.5</small></td><td>53</td><td>46.2 <small>(−22%)</small></td>
+                </tr>
+                <tr>
+                  <td rowspan="2">Claude-3.7-Sonnet</td>
+                  <td>GenericAgent-BT</td>
+                  <td><strong>56.7</strong> <small>±2.7</small></td><td>0</td><td>55.4</td>
+                  <td><strong>44.6</strong> <small>±2.5</small></td><td>2</td><td>58.2</td>
+                </tr>
+                <tr>
+                  <td>FocusAgent (<em>4.1-mini</em>)</td>
+                  <td>52.7 <small>±2.7</small></td><td>50</td><td>46.9 <small>(−16%)</small></td>
+                  <td>39.9 <small>±2.5</small></td><td>51</td><td>42.6 <small>(−27%)</small></td>
+                </tr>
+                <tr>
+                  <td rowspan="4">Qwen3-235B-A22B</td>
+                  <td>GenericAgent-BT</td>
+                  <td>27.0 <small>±2.4</small></td><td>0</td><td>–</td>
+                  <td><strong>22.0</strong> <small>±2.1</small></td><td>4</td><td>–</td>
+                </tr>
+                <tr>
+                  <td>FocusAgent (<em>4.1-mini</em>)</td>
+                  <td>33.9 <small>±2.6</small></td><td>58</td><td>–</td>
+                  <td><strong>22.0</strong> <small>±2.1</small></td><td>63</td><td>–</td>
+                </tr>
+                <tr>
+                  <td>FocusAgent (<em>5-mini</em>)</td>
+                  <td><strong>38.2</strong> <small>±2.7</small></td><td>59</td><td>–</td>
+                  <td>21.8 <small>±2.1</small></td><td>63</td><td>–</td>
+                </tr>
+                <tr>
+                  <td>FocusAgent (<em>qwen3.5-9b</em>)</td>
+                  <td>34.2 <small>±2.6</small></td><td>63</td><td>–</td>
+                  <td>–</td><td>–</td><td>–</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="is-size-7">
+            Success rate (± standard error), average pruning and cost on both benchmarks, across
+            backbone models.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End results -->
+
+  <!-- Security -->
+  <section class="section hero is-light">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3 has-text-centered">Security: retrieval as a defense</h2>
+
+          <div class="content has-text-justified">
+            <p>
+              A prompt injection has to be <em>selected</em> by the retriever before the acting model
+              can read it — so the retriever can remove the threat and keep the task on track at the
+              same time. We test this with <strong>DoomArena</strong> on WebArena Reddit (114 tasks),
+              under <strong>banner</strong> and <strong>pop-up</strong> URL-injection attacks, plus a
+              <strong>goal-drift</strong> attack we introduce that swaps the task goal for a
+              semantically similar one sampled from WebArena templates — much harder to spot than
+              off-topic injections. We report attack success rate (ASR, lower is better) and task
+              success rate (TSR, higher is better) against the plain agent, an agent with an
+              LLM-judge <em>guard</em> layer that halts the episode on detection, and prompt-warned
+              variants of both the generic agent and FocusAgent.
+            </p>
+          </div>
+
+          <div class="table-container">
+            <table class="table is-fullwidth is-narrow is-striped is-hoverable">
+              <thead>
+                <tr>
+                  <th rowspan="2">Attack</th>
+                  <th rowspan="2">Agent</th>
+                  <th colspan="2" style="text-align:center;">GPT-4.1</th>
+                  <th colspan="2" style="text-align:center;">Claude-3.7-Sonnet</th>
+                  <th colspan="2" style="text-align:center;">Qwen3-235B-A22B</th>
+                </tr>
+                <tr>
+                  <th>ASR ↓</th><th>TSR ↑</th>
+                  <th>ASR ↓</th><th>TSR ↑</th>
+                  <th>ASR ↓</th><th>TSR ↑</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td rowspan="4">No attack</td><td>GenericAgent</td><td>–</td><td><strong>51.8</strong></td><td>–</td><td><strong>61.4</strong></td><td>–</td><td>9.6</td></tr>
+                <tr><td>GenericAgent + Guard</td><td>–</td><td>46.5</td><td>–</td><td>55.3</td><td>–</td><td>–</td></tr>
+                <tr><td>DefenseGenericAgent</td><td>–</td><td>50.9</td><td>–</td><td>58.8</td><td>–</td><td><strong>13.2</strong></td></tr>
+                <tr><td>DefenseFocusAgent</td><td>–</td><td><strong>51.8</strong></td><td>–</td><td><strong>61.4</strong></td><td>–</td><td>12.4</td></tr>
+
+                <tr><td rowspan="4">Banner</td><td>GenericAgent</td><td>32.4</td><td>34.8</td><td>10.5</td><td><strong>55.2</strong></td><td>100</td><td>0</td></tr>
+                <tr><td>GenericAgent + Guard</td><td><strong>0</strong></td><td>0</td><td><strong>0</strong></td><td>0</td><td><strong>0</strong></td><td>0</td></tr>
+                <tr><td>DefenseGenericAgent</td><td>32.1</td><td>39.2</td><td><strong>0</strong></td><td>49.0</td><td>96.9</td><td>2.6</td></tr>
+                <tr><td>DefenseFocusAgent</td><td>0.9</td><td><strong>42.1</strong></td><td>2.6</td><td>51.8</td><td>1.0</td><td><strong>8.8</strong></td></tr>
+
+                <tr><td rowspan="4">Pop-up</td><td>GenericAgent</td><td>90.4</td><td>0</td><td>81.6</td><td>2.6</td><td>100</td><td>0</td></tr>
+                <tr><td>GenericAgent + Guard</td><td><strong>0</strong></td><td>0</td><td><strong>0</strong></td><td>0</td><td><strong>0</strong></td><td>0</td></tr>
+                <tr><td>DefenseGenericAgent</td><td>73.4</td><td>0.8</td><td><strong>0</strong></td><td><strong>20.2</strong></td><td>100</td><td>0</td></tr>
+                <tr><td>DefenseFocusAgent</td><td>1.0</td><td><strong>2.0</strong></td><td>0.9</td><td>1.8</td><td>4.6</td><td><strong>0.9</strong></td></tr>
+
+                <tr><td rowspan="4">Goal drift</td><td>GenericAgent</td><td>66.4</td><td>5.3</td><td>–</td><td>–</td><td>97.4</td><td>0.9</td></tr>
+                <tr><td>GenericAgent + Guard</td><td><strong>0</strong></td><td>0</td><td>–</td><td>–</td><td><strong>0</strong></td><td>0</td></tr>
+                <tr><td>DefenseGenericAgent</td><td>44.7</td><td>33.6</td><td>–</td><td>–</td><td>56.1</td><td>4.1</td></tr>
+                <tr><td>DefenseFocusAgent</td><td>0.9</td><td><strong>47.4</strong></td><td>–</td><td>–</td><td>1.0</td><td><strong>9.6</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="is-size-7">
+            ASR and TSR on WebArena Reddit (114 tasks) with GPT-4.1-mini as the retriever. Standard
+            errors range over [1.3, 4.7] for the banner and pop-up runs and [2.7, 4.7] for goal
+            drift. Goal-drift experiments were not run with Claude-3.7-Sonnet.
+          </p>
+
+          <div class="content has-text-justified" style="margin-top:2rem;">
+            <p>
+              <strong>Retrieval removes the attack instead of aborting the task.</strong> The guard
+              layer drives ASR to 0 — but also TSR to 0, since detection halts the episode, and it
+              costs performance even when no attack is present (46.5% vs 51.8% TSR for GPT-4.1).
+              DefenseFocusAgent instead keeps working: pop-up ASR falls from 90.4% to 1.0% (GPT-4.1)
+              and from 81.6% to 0.9% (Claude), banner ASR from 32.4% to 0.9%, and goal-drift ASR from
+              66.4% to 0.9% while TSR climbs from 5.3% to 47.4% — close to the 51.8% it scores with
+              no attack at all. Prompting alone is not a substitute: DefenseGenericAgent with GPT-4.1
+              still suffers 73.4% ASR under pop-ups where the retriever-based defense holds at 1.0%.
+            </p>
+            <p>
+              The remaining weakness is task completion under pop-ups. The defense reliably strips
+              the injection, but the pop-up stays open and blocks interaction with the page beneath;
+              closing it would require showing the agent a close button that itself carries the
+              injected prompt. Banner attacks succeed only in the rare cases where the page collapses
+              to almost nothing — a 404 error or a single opened image — leaving the injected text
+              dominating the observation. There is a real ASR/TSR trade-off here that we reduce but
+              do not eliminate.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- End security -->
+
+  <!--BibTex citation -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <div class="bibtex-header">
+        <h2 class="title">BibTeX</h2>
+        <button class="copy-bibtex-btn" onclick="copyBibTeX()" title="Copy BibTeX to clipboard">
+          <i class="fas fa-copy"></i>
+          <span class="copy-text">Copy</span>
+        </button>
+      </div>
+      <pre id="bibtex-code"><code>@article{kerboua2026focusagent,
+  title={{FocusAgent}: Simple Yet Effective Ways of Trimming the Large Context of Web Agents},
+  author={Kerboua, Imene and Omidi Shayegan, Sahar and Thakkar, Megh and L{\`u}, Xing Han
+          and Boisvert, L{\'e}o and Caccia, Massimo and Espinas, J{\'e}r{\'e}my
+          and Aussem, Alexandre and Eglin, V{\'e}ronique and Lacoste, Alexandre},
+  journal={Transactions on Machine Learning Research},
+  issn={2835-8856},
+  year={2026},
+  url={https://openreview.net/forum?id=mINaJKSy7A}
+}</code></pre>
+    </div>
+  </section>
+  <!--End BibTex citation -->
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+            <p>
+              This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+              You are free to borrow the source code of this website, we just ask that you link back to this page in the footer. <br> This website is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
+              Commons Attribution-ShareAlike 4.0 International License</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
